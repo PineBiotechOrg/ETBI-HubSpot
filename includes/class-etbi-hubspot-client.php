@@ -59,7 +59,7 @@ class ETBI_Hubspot_Client {
 		$this->_refresh_token = get_option( 'etbi_hubspot_options_refresh_token', '' );
 		$this->_expires_in = get_option( 'etbi_hubspot_options_expires_in', '' );
 
-		$this->_api_key = 'd65ab4b4-df71-44a5-b17e-b21335b8e919';
+		$this->_api_key = 'API_KEY';
 
 		if( ! $this->_access_token ) {
 
