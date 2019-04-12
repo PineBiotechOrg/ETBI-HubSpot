@@ -127,8 +127,8 @@ class ETBI_Hubspot_Client {
 
 		$user_data = get_userdata( $user_id );
 		$user_email = $user_data->user_email;
-		$user_first_name = ( isset( $_POST['user_firstname'] ) ) ? $_POST['user_firstname'] : '';
-		$user_last_name = ( isset( $_POST['user_lastname'] ) ) ? $_POST['user_lastname'] : '';
+		$user_first_name = ( ! empty( $_POST['user_firstname'] ) ) ? ucfirst( trim( $_POST['user_firstname'] ) ) : '';
+		$user_last_name = ( ! empty( $_POST['user_lastname'] ) ) ? ucfirst( trim( $_POST['user_lastname'] ) ) : '';
 
 		$this->hubspot->contacts()->create( array(
 
