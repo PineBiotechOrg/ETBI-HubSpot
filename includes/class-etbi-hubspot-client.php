@@ -118,6 +118,7 @@ class ETBI_Hubspot_Client {
 		add_action( 'learn-press/user-enrolled-course', array( $this, 'enroll_contact_in_course' ), 10, 3 );
 		add_action( 'etbi_cron_hook', array( $this, 'refresh_tokens' ) );
 		add_action( 'post_updated', array( $this, 'update_course_property' ), 10, 3 );
+		add_action( 'etbi_user_update_userdata', array( $this, 'update_user_data' ), 10 );
 
 		add_filter( 'cron_schedules', array( $this, 'add_refresh_schedule' ), 10, 1 );
 
@@ -347,6 +348,33 @@ class ETBI_Hubspot_Client {
 	    );
 	 
 	    return $schedules;
+
+	}
+
+	public function update_user_data( $user_data ) {
+
+		$user_data = get_userdata( $user_data['ID'] );
+		$email = $user_data->user_email;
+		$first_name = $user_data->first_name;
+		$last_name = $user_data->last_name;
+
+		$this->hubspot->contacts()->updateByEmail( $email, array(
+
+			array(
+
+				'property'	=> 'firstname',
+				'value'		=> $first_name
+
+			),
+			array(
+
+				'property'	=> 'lastname',
+				'value'		=> $last_name
+			)
+
+
+
+		) );
 
 	}
 
