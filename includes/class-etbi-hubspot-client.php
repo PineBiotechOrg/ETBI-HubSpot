@@ -118,7 +118,8 @@ class ETBI_Hubspot_Client {
 		add_action( 'learn-press/user-enrolled-course', array( $this, 'enroll_contact_in_course' ), 10, 3 );
 		add_action( 'etbi_cron_hook', array( $this, 'refresh_tokens' ) );
 		add_action( 'post_updated', array( $this, 'update_course_property' ), 10, 3 );
-		add_action( 'etbi_user_update_userdata', array( $this, 'update_user_data' ), 10 );
+		add_action( 'updated_user_meta', array( $this, 'update_user_data' ), 10, 4 );
+		add_action( 'etbi_user_updated_userdata', array( $this, 'complete_registration' ), 10, 3 );
 
 		add_filter( 'cron_schedules', array( $this, 'add_refresh_schedule' ), 10, 1 );
 
@@ -351,30 +352,76 @@ class ETBI_Hubspot_Client {
 
 	}
 
-	public function update_user_data( $user_data ) {
+	public function update_user_data( $meta_id, $object_id, $meta_key, $_meta_value ) {
 
-		$user_data = get_userdata( $user_data['ID'] );
-		$email = $user_data->user_email;
-		$first_name = $user_data->first_name;
-		$last_name = $user_data->last_name;
+		if( $meta_key == 'first_name' || $meta_key == 'last_name' ) {
 
-		$this->hubspot->contacts()->updateByEmail( $email, array(
+			$user = get_userdata( $object_id );
+			$email = $user->user_email;
 
-			array(
+			if( $meta_key == 'first_name' ) {
 
-				'property'	=> 'firstname',
-				'value'		=> $first_name
+				$first_name = ( $meta_key == 'first_name' ) ? $_meta_value : get_user_meta( $object_id, 'first_name', true );
 
-			),
-			array(
+				$this->hubspot->contacts()->updateByEmail( $email, array(
 
-				'property'	=> 'lastname',
-				'value'		=> $last_name
-			)
+					array(
 
+						'property'	=> 'firstname',
+						'value'		=> $first_name
+
+					)
 
 
-		) );
+				) );
+
+			}
+
+			if( $meta_key == 'last_name' ) {
+
+				$last_name = ( $meta_key == 'last_name' ) ? $_meta_value : get_user_meta( $object_id, 'last_name', true );
+
+				$this->hubspot->contacts()->updateByEmail( $email, array(
+
+					array(
+
+						'property'	=> 'lastname',
+						'value'		=> $last_name
+					)
+
+
+				) );
+
+			}
+
+
+		}
+
+	}
+
+	public function complete_registration( $user_id, $first_name, $last_name ) {
+
+			$user = get_userdata( $user_id );
+			$email = $user->user_email;
+
+			error_log('FULL NAME: ' . $first_name . ' ' . $last_name );
+
+			$this->hubspot->contacts()->updateByEmail( $email, array(
+
+				array(
+
+					'property'	=> 'firstname',
+					'value'		=> $first_name
+
+				),
+				array(
+
+					'property'	=> 'lastname',
+					'value'		=> $last_name
+				)
+
+
+			) );
 
 	}
 
